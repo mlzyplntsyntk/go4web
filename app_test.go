@@ -1,10 +1,10 @@
 package main
 
 import (
-    "net/http"
-    "net/http/httptest"
-	"testing"
 	"./core"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
 func makeRequest(url string, configFile string) (int, string) {
@@ -19,11 +19,11 @@ func makeRequest(url string, configFile string) (int, string) {
 	return w.Code, result
 }
 
-func makeRequestForSingleLanguage(url string) (int, string)  {
+func makeRequestForSingleLanguage(url string) (int, string) {
 	return makeRequest(url, "./config_test_single.json")
 }
 
-func makeRequestForMultiLanguage(url string) (int, string)  {
+func makeRequestForMultiLanguage(url string) (int, string) {
 	return makeRequest(url, "./config.json")
 }
 

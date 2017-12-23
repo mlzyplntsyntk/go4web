@@ -1,12 +1,16 @@
-package main 
+package main
 
 import (
+	"./controller"
 	"./core"
 	"./middleware"
 )
 
 func addHandlers() {
-	core.AddHandler(middleware.ContentHandler{})
+	handler := middleware.ContentHandler{}
+	middleware.AddController(controller.BlogController{})
+	middleware.AddController(controller.IndexController{})
+	core.AddHandler(handler)
 }
 
 func main() {

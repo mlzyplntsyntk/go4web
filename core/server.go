@@ -3,30 +3,32 @@
 // this server will not be able to handle any requests at all
 // (it can do some redirections if it's multilingual)
 
-package core 
+package core
 
 import (
-	"fmt"
-	"net/http"
-	"io/ioutil"
 	"encoding/json"
-	"strings"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strconv"
+	"strings"
 )
 
 // TODO: These variables should not be visible to other packages. We should consider
 // encapsulating the needed properties into functions, later... Last thing to do :)
 
 var (
-	SiteConfig 		Config
+	SiteConfig Config
 
 	// this parameter is important because it decides if the language prefix
 	// should be used at the requested urls or not.
 
-	isMultiLanguage bool		= false
-	Handlers []HandlerInterface = make([]HandlerInterface, 0)
+	isMultiLanguage bool               = false
+	Handlers        []HandlerInterface = make([]HandlerInterface, 0)
 )
+
+// let's define an interface for our handlers
 
 type HandlerInterface interface {
 	RunBeforeHandled() bool
@@ -45,7 +47,7 @@ type HandlerInterface interface {
 func getCurrentLanguage(path string) (Language, error) {
 	var defaultLang Language
 
-	for i:=0; i<len(SiteConfig.Languages); i++ {
+	for i := 0; i < len(SiteConfig.Languages); i++ {
 
 		if SiteConfig.Languages[i].IsDefault {
 			defaultLang = SiteConfig.Languages[i]
@@ -67,15 +69,15 @@ func getCurrentLanguage(path string) (Language, error) {
 // to know more about the parameters.
 
 func getCurrentRoute(path string, langPrefix string) (Page, error) {
-	
-	for i:=0; i<len(SiteConfig.Routes); i++ {
+
+	for i := 0; i < len(SiteConfig.Routes); i++ {
 
 		if SiteConfig.Routes[i].LanguagePrefix != langPrefix {
 			continue
 		}
 
-		for j:=0; j<len(SiteConfig.Routes[i].Pages); j++ {
-			if len(path)==0 && SiteConfig.Routes[i].Pages[j].IsDefault {
+		for j := 0; j < len(SiteConfig.Routes[i].Pages); j++ {
+			if len(path) == 0 && SiteConfig.Routes[i].Pages[j].IsDefault {
 				return SiteConfig.Routes[i].Pages[j], nil
 			}
 
@@ -89,11 +91,11 @@ func getCurrentRoute(path string, langPrefix string) (Page, error) {
 }
 
 // this function manages all the pipeline of the framework
-// it delegates requests to appropriate handlers. 
+// it delegates requests to appropriate handlers.
 // assuming that our domain is http://example.com/ handler first
 // searches for the default path for our application. This path
 // should be defined explicitly in our config.json file, in form
-// of Page type, and the definition should be as it's described 
+// of Page type, and the definition should be as it's described
 // in checkSiteConfig function.
 
 func MainHandler(config Config) http.HandlerFunc {
@@ -109,8 +111,8 @@ func MainHandler(config Config) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		// paths variable is an array of strings. 
-		// it should always have a minimum size of 1. Which is 
+		// paths variable is an array of strings.
+		// it should always have a minimum size of 1. Which is
 		// an empty string at worse.
 
 		paths := strings.Split(r.URL.Path[1:], "/")
@@ -121,12 +123,12 @@ func MainHandler(config Config) http.HandlerFunc {
 
 		pathToHandle := paths[0]
 
-		// see getCurrentLanguage Comments 
+		// see getCurrentLanguage Comments
 
 		language, langStatus := getCurrentLanguage(pathToHandle)
 
 		// here we will check if the app is multi language, and if so,
-		// we need to know that the requested url's first path should 
+		// we need to know that the requested url's first path should
 		// either match a language prefix or empty
 
 		if isMultiLanguage {
@@ -140,7 +142,7 @@ func MainHandler(config Config) http.HandlerFunc {
 			}
 
 			// it should be noted that, if the application is multi-language
-			// we need to shift the path to the next index (if available) 
+			// we need to shift the path to the next index (if available)
 			// so we have the real path to deal with.
 
 			if len(paths) > 1 {
@@ -152,7 +154,7 @@ func MainHandler(config Config) http.HandlerFunc {
 
 		// pathToHandle variable was defined at the very beginning of our function
 		// so it can change if our app is multi language or not. Either way, we will
-		// have the current language for current context and the pathToHandle should be 
+		// have the current language for current context and the pathToHandle should be
 		// executed by the given language.
 
 		if route, err := getCurrentRoute(pathToHandle, language.Prefix); err != nil {
@@ -173,20 +175,31 @@ func MainHandler(config Config) http.HandlerFunc {
 					currentHandler = Handlers[item]
 				}
 
+				// this one wil be our default handler, in case we have no match
+
 				if Handlers[item].Pattern() == "*" && currentHandler == nil {
 					currentHandler = Handlers[item]
 				}
 
+				// this handler should be invoked now.
+
 				if Handlers[item].RunBeforeHandled() {
-					Handlers[item].Run(w,r,&route)
+					Handlers[item].Run(w, r, &route)
 				}
+
 			}
 
-			currentHandler.Run(w,r,&route)
+			// this should be checked before invoked.
+
+			currentHandler.Run(w, r, &route)
+
+			// loop over Handlers again to find if there are any handlers should work
+			// after the request handler executed.
+			// note that the below context should be implemented with the defer function
 
 			for item := range Handlers {
 				if Handlers[item].RunAfterHandled() {
-					Handlers[item].Run(w,r,&route)
+					Handlers[item].Run(w, r, &route)
 				}
 			}
 
@@ -198,7 +211,7 @@ func MainHandler(config Config) http.HandlerFunc {
 // we should give here directions to correctly setup the config
 // file
 
-func checkSiteConfig() {
+func checkSiteConfig(config Config) {
 
 }
 
@@ -206,31 +219,26 @@ func checkSiteConfig() {
 // fn => the function signature to respond to request
 // pattern => the pattern to match against this handler
 // before => if this handler will run before the main Handler.
-// after => if this handler will run after the main handler 
+// after => if this handler will run after the main handler
 
 func AddHandler(hd HandlerInterface) {
 	Handlers = append(Handlers, hd)
 }
 
-//Gets the config file from given path. 
+//Gets the config file from given path.
 
 func GetConfigFromJSON(configFile string) Config {
 	var config Config
 	contents, _ := ioutil.ReadFile(configFile)
 	json.Unmarshal(contents, &config)
+	checkSiteConfig(config)
 	return config
 }
 
 // Server starts here. it needs to parse config.json file first.
-// checkSiteConfig function should explain everything that is needed 
-// by the framework, if the Start fails due to configuration settings
 
 func Start(portNumber int, configFile string) {
 	config := GetConfigFromJSON(configFile)
-
-	checkSiteConfig()
-
 	http.HandleFunc("/", MainHandler(config))
-
-	http.ListenAndServe(":" + strconv.Itoa(portNumber), nil)
+	http.ListenAndServe(":"+strconv.Itoa(portNumber), nil)
 }
