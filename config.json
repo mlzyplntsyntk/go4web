@@ -1,0 +1,47 @@
+{
+	"Languages" : [
+		{
+			"Name" : "English",
+			"Prefix" : "en",
+			"IsDefault" : true
+		}, {
+			"Name" : "Türkçe",
+			"Prefix" : "tr"
+		}
+	],
+	"Routes" : [
+		{
+			"LanguagePrefix" : "en",
+			"Pages" : [
+				{
+					"Name" : "Home",
+					"Pattern" : "home",
+					"IsDefault" : true,
+					"Template" : "layout@home"
+				}, {
+					"Name" : "Blog",
+					"Pattern" : "blog",
+					"Template" : "layout@blog"
+				}, {
+					"Name" : "Blog",
+					"Pattern" : "blogger",
+					"Template" : "layout@blogger"
+				}
+			]
+		}, {
+			"LanguagePrefix" : "tr",
+			"Pages" : [
+				{
+					"Name" : "Anasayfa",
+					"Pattern" : "anasayfa",
+					"IsDefault" : true,
+					"Template" : "layout@home"
+				}, {
+					"Name" : "Blog",
+					"Pattern" : "blog",
+					"Template" : "layout@blog"
+				}
+			]
+		}
+	]
+}

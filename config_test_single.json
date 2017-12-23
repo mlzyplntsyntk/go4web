@@ -1,0 +1,23 @@
+{
+	"Languages" : [{
+			"Name" : "Türkçe",
+			"Prefix" : "tr",
+			"IsDefault" : true
+		}
+	],
+	"Routes" : [
+		{
+			"LanguagePrefix" : "tr",
+			"Pages" : [
+				{
+					"Name" : "Anasayfa",
+					"Pattern" : "anasayfa",
+					"IsDefault" : true
+				}, {
+					"Name" : "Blog",
+					"Pattern" : "blog"
+				}
+			]
+		}
+	]
+}
