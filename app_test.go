@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./core"
+	"github.com/mlzyplntsyntk/go4web/core"
 	"net/http"
 	"net/http/httptest"
 	"testing"

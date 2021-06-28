@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"../core"
+	"github.com/mlzyplntsyntk/go4web/core"
 	"html/template"
 	"net/http"
 )

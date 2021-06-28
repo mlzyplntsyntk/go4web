@@ -1,9 +1,9 @@
 package main
 
 import (
-	"./controller"
-	"./core"
-	"./middleware"
+	"github.com/mlzyplntsyntk/go4web/controller"
+	"github.com/mlzyplntsyntk/go4web/core"
+	"github.com/mlzyplntsyntk/go4web/middleware"
 )
 
 func addHandlers() {
